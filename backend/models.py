@@ -10,6 +10,7 @@ db = SQLAlchemy()
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
     serialize_only = ("id", "username", "email", "role")
+    serialize_rules = ("profile",)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
@@ -43,6 +44,7 @@ class Profile(db.Model, SerializerMixin):
 class Course(db.Model, SerializerMixin):
     __tablename__ = "courses"
     serialize_only = ("id", "title", "description", "teacher_id")
+    serialize_rules = ("teacher",)
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
@@ -56,6 +58,7 @@ class Course(db.Model, SerializerMixin):
 class Enrollment(db.Model, SerializerMixin):
     __tablename__ = "enrollments"
     serialize_only = ("id", "student_id", "course_id", "grade", "enrolled_at")
+    serialize_rules = ("student", "course")
 
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)

@@ -1,8 +1,234 @@
-:root { font-family: Arial, sans-serif; color: #222; background: #f5f7fb; }
-body { margin: 0; padding: 0; }
-.page { max-width: 900px; margin: 0 auto; padding: 24px; }
-.card { background: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-input, textarea, button { display: block; width: 100%; margin-top: 8px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
-button { cursor: pointer; background: #2563eb; color: white; border: none; }
-.error { color: #dc2626; }
-.item { border-bottom: 1px solid #eee; padding: 10px 0; }
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #f8fafc;
+  background: radial-gradient(circle at top left, #881b1b 0%, #0f0f0f 45%, #080808 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: transparent;
+  color: #f8fafc;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 22px;
+}
+
+.centered {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(248, 250, 252, 0.12);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.loading-card {
+  padding: 32px 42px;
+  font-size: 1.1rem;
+}
+
+.page h1,
+.page h2,
+.page h3 {
+  margin: 0 0 14px;
+  line-height: 1.15;
+}
+
+.page h1 {
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.page h2 {
+  font-size: 1.4rem;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(248, 250, 252, 0.18);
+  background: rgba(0, 0, 0, 0.36);
+  color: #f8fafc;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-weight: 700;
+  background: #b91c1c;
+  color: #fff;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.success {
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.14);
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.page.auth-page,
+.dashboard-page {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.role-label {
+  display: grid;
+  gap: 8px;
+}
+
+.secondary {
+  margin-top: 16px;
+  color: #f8fafc;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.small-note {
+  color: #f8fafc;
+  opacity: 0.8;
+}
+
+.grid-list {
+  display: grid;
+  gap: 16px;
+}
+
+.course-card,
+.enrollment-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(248, 250, 252, 0.08);
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.86rem;
+}
+
+.course-actions,
+.enrollment-list,
+.student-list {
+  display: grid;
+  gap: 10px;
+}
+
+.course-actions button {
+  width: auto;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+}
+
+.course-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid rgba(248, 250, 252, 0.32);
+}
+
+.student-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-list li {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.section-card {
+  padding: 26px;
+}
+
+@media (min-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

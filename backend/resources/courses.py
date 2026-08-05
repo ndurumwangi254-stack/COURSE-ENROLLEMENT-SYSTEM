@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Course, User, Enrollment
 
@@ -10,7 +11,7 @@ class CourseListResource(Resource):
     def get(self):
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
-        query = Course.query
+        query = Course.query.options(joinedload(Course.teacher))
 
         if request.args.get("teacher_id"):
             query = query.filter(Course.teacher_id == request.args.get("teacher_id", type=int))

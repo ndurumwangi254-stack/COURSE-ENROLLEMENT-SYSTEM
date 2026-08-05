@@ -31,10 +31,11 @@ def seed():
         db.session.add_all([profile_admin, profile_teacher, profile_student1, profile_student2, course1, course2])
         db.session.flush()
 
+        utcnow = datetime.now(datetime.UTC)
         db.session.add_all([
-            Enrollment(student_id=student1.id, course_id=course1.id, grade=88.5, enrolled_at=datetime.utcnow()),
-            Enrollment(student_id=student2.id, course_id=course1.id, grade=92.0, enrolled_at=datetime.utcnow()),
-            Enrollment(student_id=student1.id, course_id=course2.id, grade=79.0, enrolled_at=datetime.utcnow()),
+            Enrollment(student_id=student1.id, course_id=course1.id, grade=88.5, enrolled_at=utcnow),
+            Enrollment(student_id=student2.id, course_id=course1.id, grade=92.0, enrolled_at=utcnow),
+            Enrollment(student_id=student1.id, course_id=course2.id, grade=79.0, enrolled_at=utcnow),
         ])
         db.session.commit()
         print("Seed data created successfully")

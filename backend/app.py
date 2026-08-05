@@ -8,6 +8,7 @@ from models import db
 from resources.auth import RegisterResource, LoginResource, MeResource
 from resources.courses import CourseListResource, CourseDetailResource, CourseStudentsResource, CourseStatsResource
 from resources.enrollments import EnrollmentListResource, EnrollmentDetailResource
+from resources.admin import AdminUserListResource
 
 
 def create_app():
@@ -29,6 +30,7 @@ def create_app():
     api.add_resource(CourseStatsResource, "/courses/<int:course_id>/stats")
     api.add_resource(EnrollmentListResource, "/enrollments")
     api.add_resource(EnrollmentDetailResource, "/enrollments/<int:enrollment_id>")
+    api.add_resource(AdminUserListResource, "/admin/users")
 
     return app
 
