@@ -43,7 +43,14 @@ class CourseListResource(Resource):
             return {"message": "Only tutors/admins can create courses"}, 403
 
         data = request.get_json()
-        course = Course(title=data["title"], description=data["description"], teacher_id=user.id)
+        course = Course(
+            title=data["title"],
+            description=data["description"],
+            teacher_id=user.id,
+            grade_requirements=data.get("grade_requirements"),
+            cost=data.get("cost"),
+            duration=data.get("duration"),
+        )
         db.session.add(course)
         db.session.commit()
         return course.to_dict(), 201
@@ -66,6 +73,9 @@ class CourseDetailResource(Resource):
         data = request.get_json()
         course.title = data.get("title", course.title)
         course.description = data.get("description", course.description)
+        course.grade_requirements = data.get("grade_requirements", course.grade_requirements)
+        course.cost = data.get("cost", course.cost)
+        course.duration = data.get("duration", course.duration)
         db.session.commit()
         return course.to_dict(), 200
 

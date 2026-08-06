@@ -43,13 +43,16 @@ class Profile(db.Model, SerializerMixin):
 
 class Course(db.Model, SerializerMixin):
     __tablename__ = "courses"
-    serialize_only = ("id", "title", "description", "teacher_id")
+    serialize_only = ("id", "title", "description", "teacher_id", "grade_requirements", "cost", "duration")
     serialize_rules = ("teacher",)
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    grade_requirements = db.Column(db.String(120), nullable=True)
+    cost = db.Column(db.Float, nullable=True, default=0.0)
+    duration = db.Column(db.String(80), nullable=True)
 
     teacher = db.relationship("User", back_populates="courses_taught")
     enrollments = db.relationship("Enrollment", back_populates="course", cascade="all, delete-orphan")

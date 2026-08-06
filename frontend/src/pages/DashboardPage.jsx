@@ -4,7 +4,7 @@ import { useFetch } from '../hooks/useFetch'
 export default function DashboardPage({ auth }) {
   const token = auth.token
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
-  const [form, setForm] = useState({ title: '', description: '' })
+  const [form, setForm] = useState({ title: '', description: '', grade_requirements: '', cost: '', duration: '' })
   const [tutorForm, setTutorForm] = useState({ username: '', email: '', password: '', full_name: '', bio: '' })
   const [adminUsers, setAdminUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(false)
@@ -50,14 +50,14 @@ export default function DashboardPage({ auth }) {
     const res = await fetch('/api/courses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ ...form, cost: form.cost ? Number(form.cost) : 0 })
     })
     const data = await res.json()
     if (!res.ok) {
       setMessage(data.message || 'Unable to create course')
       return
     }
-    setForm({ title: '', description: '' })
+    setForm({ title: '', description: '', grade_requirements: '', cost: '', duration: '' })
     setMessage('Course created successfully')
     reloadCourses()
   }
@@ -192,6 +192,9 @@ export default function DashboardPage({ auth }) {
           <form onSubmit={handleCreateCourse} className="form-grid">
             <input placeholder="Course title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             <textarea placeholder="Course description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <input placeholder="Grade requirements (e.g. B+, >=70)" value={form.grade_requirements} onChange={(e) => setForm({ ...form, grade_requirements: e.target.value })} />
+            <input type="number" step="0.01" placeholder="Course cost (USD)" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} />
+            <input placeholder="Duration (e.g. 8 weeks)" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
             <button type="submit">Create Course</button>
           </form>
         </section>
@@ -249,6 +252,9 @@ export default function DashboardPage({ auth }) {
                   <span className="pill">Tutor: {course.teacher?.username || 'N/A'}</span>
                 </div>
                 <p>{course.description}</p>
+                <p><strong>Requirements:</strong> {course.grade_requirements || 'None'}</p>
+                <p><strong>Cost:</strong> {'$' + (course.cost != null ? Number(course.cost).toFixed(2) : '0.00')}</p>
+                <p><strong>Duration:</strong> {course.duration || 'TBD'}</p>
                 <div className="course-actions">
                   {(auth.user?.role !== 'student') && (
                     <>

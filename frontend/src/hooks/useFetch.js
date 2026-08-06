@@ -12,10 +12,22 @@ export function useFetch(url, options = {}, deps = []) {
 
     try {
       const response = await fetch(url, options)
-      const payload = await response.json()
-      if (!response.ok) {
-        throw new Error(payload.message || 'Failed to fetch data')
+
+      // Safely parse JSON only when the server responds with JSON
+      const contentType = response.headers.get('content-type') || ''
+      let payload
+      if (contentType.includes('application/json')) {
+        payload = await response.json()
+      } else {
+        const text = await response.text()
+        // If the response is HTML (e.g. an index page or error page), include it in the error
+        payload = { message: text }
       }
+
+      if (!response.ok) {
+        throw new Error(payload.message || `Request failed with status ${response.status}`)
+      }
+
       setData(payload)
       return payload
     } catch (err) {
