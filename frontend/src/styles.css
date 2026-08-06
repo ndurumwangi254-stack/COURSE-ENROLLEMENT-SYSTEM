@@ -275,7 +275,12 @@ button:disabled {
 
 .secondary {
   margin-top: 16px;
-  color: #f8fafc;
+  color: #0f172a;
+}
+
+.secondary a {
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .topbar {
@@ -298,10 +303,11 @@ button:disabled {
 
 .course-card,
 .enrollment-item {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(248, 250, 252, 0.08);
-  padding: 18px;
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  padding: 22px;
+  border-radius: 20px;
+  color: var(--text-dark);
 }
 
 .course-header {
@@ -312,10 +318,16 @@ button:disabled {
   flex-wrap: wrap;
 }
 
+.course-header h3,
+.course-card p,
+.enrollment-item p {
+  color: var(--text-dark);
+}
+
 .pill {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
-  padding: 6px 12px;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 14px;
   border-radius: 9999px;
   font-size: 0.86rem;
 }
