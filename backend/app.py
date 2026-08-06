@@ -8,7 +8,7 @@ from models import db
 from resources.auth import RegisterResource, LoginResource, MeResource
 from resources.courses import CourseListResource, CourseDetailResource, CourseStudentsResource, CourseStatsResource
 from resources.enrollments import EnrollmentListResource, EnrollmentDetailResource
-from resources.admin import AdminUserListResource
+from resources.admin import AdminUserListResource, AdminUserResource
 
 
 def create_app():
@@ -31,6 +31,7 @@ def create_app():
     api.add_resource(EnrollmentListResource, "/enrollments")
     api.add_resource(EnrollmentDetailResource, "/enrollments/<int:enrollment_id>")
     api.add_resource(AdminUserListResource, "/admin/users")
+    api.add_resource(AdminUserResource, "/admin/users/<int:user_id>")
 
     return app
 
@@ -39,4 +40,4 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

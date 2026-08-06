@@ -5,6 +5,9 @@ export default function DashboardPage({ auth }) {
   const token = auth.token
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
   const [form, setForm] = useState({ title: '', description: '' })
+  const [teacherForm, setTeacherForm] = useState({ username: '', email: '', password: '', full_name: '', bio: '' })
+  const [adminUsers, setAdminUsers] = useState([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [studentList, setStudentList] = useState([])
   const [stats, setStats] = useState(null)
@@ -13,6 +16,17 @@ export default function DashboardPage({ auth }) {
   const { data: courseData, loading: loadingCourses, error: courseError, refetch: reloadCourses } = useFetch('/api/courses', { headers }, [token])
   const { data: enrollmentData, loading: loadingEnrollments, error: enrollError, refetch: reloadEnrollments } = useFetch('/api/enrollments', { headers }, [token])
 
+  const reloadUsers = async () => {
+    if (!token || auth.user?.role !== 'admin') return
+    setLoadingUsers(true)
+    const res = await fetch('/api/admin/users?role=teacher', { headers })
+    const data = await res.json()
+    if (res.ok) {
+      setAdminUsers(data.users)
+    }
+    setLoadingUsers(false)
+  }
+
   const courses = courseData?.courses || []
   const enrollments = enrollmentData?.enrollments || []
 
@@ -20,6 +34,7 @@ export default function DashboardPage({ auth }) {
     if (!token) return
     reloadCourses()
     reloadEnrollments()
+    reloadUsers()
   }, [token])
 
   const handleCreateCourse = async (e) => {
@@ -76,6 +91,58 @@ export default function DashboardPage({ auth }) {
     setStats(data)
   }
 
+  const handleDeleteCourse = async (courseId) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) {
+      return
+    }
+    const res = await fetch(`/api/courses/${courseId}`, {
+      method: 'DELETE',
+      headers
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setMessage(data.message || 'Unable to delete course')
+      return
+    }
+    setMessage('Course deleted')
+    reloadCourses()
+  }
+
+  const handleAddTeacher = async (e) => {
+    e.preventDefault()
+    setMessage('')
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify({ ...teacherForm, role: 'teacher' })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setMessage(data.message || 'Unable to add teacher')
+      return
+    }
+    setTeacherForm({ username: '', email: '', password: '', full_name: '', bio: '' })
+    setMessage('Teacher added successfully')
+    reloadUsers()
+  }
+
+  const handleDeleteTeacher = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this teacher?')) {
+      return
+    }
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setMessage(data.message || 'Unable to delete teacher')
+      return
+    }
+    setMessage('Teacher deleted successfully')
+    reloadUsers()
+  }
+
   const handleLogout = () => {
     auth.logout()
   }
@@ -106,6 +173,42 @@ export default function DashboardPage({ auth }) {
         </section>
       )}
 
+      {auth.user?.role === 'admin' && (
+        <section className="card section-card">
+          <h2>Manage Teachers</h2>
+          <form onSubmit={handleAddTeacher} className="form-grid">
+            <input placeholder="Username" value={teacherForm.username} onChange={(e) => setTeacherForm({ ...teacherForm, username: e.target.value })} />
+            <input placeholder="Email" value={teacherForm.email} onChange={(e) => setTeacherForm({ ...teacherForm, email: e.target.value })} />
+            <input type="password" placeholder="Password" value={teacherForm.password} onChange={(e) => setTeacherForm({ ...teacherForm, password: e.target.value })} />
+            <input placeholder="Full Name" value={teacherForm.full_name} onChange={(e) => setTeacherForm({ ...teacherForm, full_name: e.target.value })} />
+            <textarea placeholder="Bio" value={teacherForm.bio} onChange={(e) => setTeacherForm({ ...teacherForm, bio: e.target.value })} />
+            <button type="submit">Add Teacher</button>
+          </form>
+
+          <div className="section-header">
+            <h3>Existing Teachers</h3>
+            {loadingUsers && <span className="small-note">Loading teachers…</span>}
+          </div>
+          {adminUsers.length === 0 ? (
+            <p>No teachers found.</p>
+          ) : (
+            <div className="grid-list">
+              {adminUsers.map((user) => (
+                <article key={user.id} className="course-card">
+                  <div className="course-header">
+                    <div>
+                      <h3>{user.username}</h3>
+                      <p>{user.email}</p>
+                    </div>
+                    <button onClick={() => handleDeleteTeacher(user.id)}>Delete Teacher</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="card section-card">
         <div className="section-header">
           <h2>Available Courses</h2>
@@ -128,6 +231,9 @@ export default function DashboardPage({ auth }) {
                   <button disabled={enrolledCourseIds.includes(course.id)} onClick={() => handleEnroll(course.id)}>
                     {enrolledCourseIds.includes(course.id) ? 'Enrolled' : 'Enroll'}
                   </button>
+                  {(auth.user?.role === 'teacher' || auth.user?.role === 'admin') && (
+                    <button onClick={() => handleDeleteCourse(course.id)}>Delete Course</button>
+                  )}
                 </div>
               </article>
             ))}

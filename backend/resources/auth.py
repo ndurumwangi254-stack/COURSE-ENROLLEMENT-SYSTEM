@@ -13,7 +13,7 @@ class RegisterResource(Resource):
         username = data.get("username")
         email = data.get("email")
         password = data.get("password")
-        role = data.get("role", "student")
+        role = "student"
 
         if not all([username, email, password]):
             return {"message": "username, email, and password are required"}, 400
