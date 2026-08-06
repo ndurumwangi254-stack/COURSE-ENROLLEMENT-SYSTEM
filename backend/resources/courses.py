@@ -11,6 +11,8 @@ class CourseListResource(Resource):
     def get(self):
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
+        user_id = get_jwt_identity()
+        user = User.query.get_or_404(user_id)
         query = Course.query.options(joinedload(Course.teacher))
 
         if request.args.get("teacher_id"):
@@ -18,6 +20,11 @@ class CourseListResource(Resource):
         if request.args.get("search"):
             search = request.args.get("search")
             query = query.filter(Course.title.ilike(f"%{search}%"))
+
+        available = request.args.get("available", "false").lower() in ("true", "1", "yes")
+        if available and user.role == "student":
+            enrolled_course_ids = db.session.query(Enrollment.course_id).filter(Enrollment.student_id == user.id)
+            query = query.filter(~Course.id.in_(enrolled_course_ids))
 
         pagination = query.order_by(Course.id.asc()).paginate(page=page, per_page=per_page, error_out=False)
         return {

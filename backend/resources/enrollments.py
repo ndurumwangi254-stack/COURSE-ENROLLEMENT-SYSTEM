@@ -9,10 +9,15 @@ class EnrollmentListResource(Resource):
     def get(self):
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
+        user_id = get_jwt_identity()
+        user = User.query.get_or_404(user_id)
         query = Enrollment.query
 
-        if request.args.get("student_id"):
+        if user.role == "student":
+            query = query.filter(Enrollment.student_id == user.id)
+        elif request.args.get("student_id"):
             query = query.filter(Enrollment.student_id == request.args.get("student_id", type=int))
+
         if request.args.get("course_id"):
             query = query.filter(Enrollment.course_id == request.args.get("course_id", type=int))
 
@@ -55,6 +60,12 @@ class EnrollmentDetailResource(Resource):
             return {"message": "Not authorized"}, 403
 
         data = request.get_json()
+        if data.get("course_id") is not None:
+            new_course = Course.query.get_or_404(data["course_id"])
+            if Enrollment.query.filter_by(student_id=enrollment.student_id, course_id=new_course.id).first():
+                return {"message": "Already enrolled in that course"}, 400
+            enrollment.course_id = new_course.id
+
         enrollment.grade = data.get("grade", enrollment.grade)
         db.session.commit()
         return enrollment.to_dict(), 200

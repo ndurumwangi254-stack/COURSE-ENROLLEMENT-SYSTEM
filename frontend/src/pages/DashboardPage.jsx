@@ -12,6 +12,7 @@ export default function DashboardPage({ auth }) {
   const [studentList, setStudentList] = useState([])
   const [stats, setStats] = useState(null)
   const [message, setMessage] = useState('')
+  const [switchTargets, setSwitchTargets] = useState({})
 
   const { data: courseData, loading: loadingCourses, error: courseError, refetch: reloadCourses } = useFetch('/api/courses', { headers }, [token])
   const { data: enrollmentData, loading: loadingEnrollments, error: enrollError, refetch: reloadEnrollments } = useFetch('/api/enrollments', { headers }, [token])
@@ -29,6 +30,12 @@ export default function DashboardPage({ auth }) {
 
   const courses = courseData?.courses || []
   const enrollments = enrollmentData?.enrollments || []
+  const enrolledCourseIds = useMemo(() => enrollments.map((item) => item.course_id), [enrollments])
+  const availableCourses = useMemo(
+    () => courses.filter((course) => !enrolledCourseIds.includes(course.id)),
+    [courses, enrolledCourseIds]
+  )
+  const visibleCourses = auth.user?.role === 'student' ? availableCourses : courses
 
   useEffect(() => {
     if (!token) return
@@ -68,6 +75,25 @@ export default function DashboardPage({ auth }) {
     }
     setMessage('Enrolled successfully')
     reloadEnrollments()
+    reloadCourses()
+  }
+
+  const handleSwitchCourse = async (enrollmentId, courseId) => {
+    if (!courseId) return
+    const res = await fetch(`/api/enrollments/${enrollmentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify({ course_id: courseId })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setMessage(data.message || 'Unable to switch course')
+      return
+    }
+    setMessage('Course switched successfully')
+    setSwitchTargets((prev) => ({ ...prev, [enrollmentId]: '' }))
+    reloadEnrollments()
+    reloadCourses()
   }
 
   const handleViewStudents = async (course) => {
@@ -147,8 +173,6 @@ export default function DashboardPage({ auth }) {
     auth.logout()
   }
 
-  const enrolledCourseIds = useMemo(() => enrollments.map((item) => item.course_id), [enrollments])
-
   return (
     <div className="page dashboard-page">
       <header className="topbar">
@@ -214,11 +238,11 @@ export default function DashboardPage({ auth }) {
           <h2>Available Courses</h2>
           {loadingCourses && <span className="small-note">Loading courses…</span>}
         </div>
-        {courses.length === 0 && !loadingCourses ? (
-          <p>No courses available yet.</p>
+        {visibleCourses.length === 0 && !loadingCourses ? (
+          <p>{auth.user?.role === 'student' ? 'No available courses to enroll in right now.' : 'No courses available yet.'}</p>
         ) : (
           <div className="grid-list">
-            {courses.map((course) => (
+            {visibleCourses.map((course) => (
               <article key={course.id} className="course-card">
                 <div className="course-header">
                   <h3>{course.title}</h3>
@@ -226,8 +250,12 @@ export default function DashboardPage({ auth }) {
                 </div>
                 <p>{course.description}</p>
                 <div className="course-actions">
-                  <button onClick={() => handleViewStudents(course)}>Students</button>
-                  <button onClick={() => handleViewStats(course)}>Stats</button>
+                  {(auth.user?.role !== 'student') && (
+                    <>
+                      <button onClick={() => handleViewStudents(course)}>Students</button>
+                      <button onClick={() => handleViewStats(course)}>Stats</button>
+                    </>
+                  )}
                   <button disabled={enrolledCourseIds.includes(course.id)} onClick={() => handleEnroll(course.id)}>
                     {enrolledCourseIds.includes(course.id) ? 'Enrolled' : 'Enroll'}
                   </button>
@@ -246,15 +274,47 @@ export default function DashboardPage({ auth }) {
         {loadingEnrollments && <p>Loading your enrollments…</p>}
         {!loadingEnrollments && enrollments.length === 0 && <p>You have not enrolled in any courses yet.</p>}
         <div className="enrollment-list">
-          {enrollments.map((enrollment) => (
-            <div key={enrollment.id} className="item enrollment-item">
-              <div>
-                <strong>{enrollment.course?.title || `Course ${enrollment.course_id}`}</strong>
-                <p>Grade: {enrollment.grade ?? 'Pending'}</p>
+          {enrollments.map((enrollment) => {
+            const alternatives = availableCourses
+            const selectedSwitchId = switchTargets[enrollment.id] || (alternatives[0] && alternatives[0].id)
+            return (
+              <div key={enrollment.id} className="item enrollment-item">
+                <div>
+                  <strong>{enrollment.course?.title || `Course ${enrollment.course_id}`}</strong>
+                  <p>Grade: {enrollment.grade ?? 'Pending'}</p>
+                </div>
+                <div className="enrollment-actions">
+                  <span className="small-note">{new Date(enrollment.enrolled_at).toLocaleDateString()}</span>
+                  {auth.user?.role === 'student' && (
+                    <div className="switch-course">
+                      {alternatives.length > 0 ? (
+                        <>
+                          <select
+                            value={selectedSwitchId || ''}
+                            onChange={(e) => setSwitchTargets((prev) => ({ ...prev, [enrollment.id]: Number(e.target.value) }))}
+                          >
+                            {alternatives.map((course) => (
+                              <option key={course.id} value={course.id}>
+                                {course.title}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            disabled={!selectedSwitchId}
+                            onClick={() => handleSwitchCourse(enrollment.id, selectedSwitchId)}
+                          >
+                            Switch Course
+                          </button>
+                        </>
+                      ) : (
+                        <p className="small-note">No alternative courses available.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-              <span className="small-note">{new Date(enrollment.enrolled_at).toLocaleDateString()}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
