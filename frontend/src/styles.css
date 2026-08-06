@@ -147,27 +147,27 @@ button:disabled {
 }
 
 .auth-card {
-  max-width: 560px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .auth-navbar {
   width: 100%;
-  max-width: 560px;
+  max-width: 760px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 20px;
   margin: 0 auto;
-  padding: 18px 20px;
+  padding: 22px 30px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 22px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.16);
 }
 
 .auth-navbar + .auth-card {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .auth-navbar .brand {
