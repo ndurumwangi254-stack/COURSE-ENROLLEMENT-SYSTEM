@@ -8,7 +8,7 @@ export default function RegisterPage({ auth }) {
     email: '',
     password: '',
     full_name: '',
-    bio: ''
+    role: 'student'
   })
   const [message, setMessage] = useState('')
 
@@ -42,7 +42,13 @@ export default function RegisterPage({ auth }) {
           <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <input type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <input placeholder="Full Name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-          <textarea placeholder="Bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+          <label className="role-label">
+            Role
+            <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+              <option value="student">Student</option>
+              <option value="tutor">Tutor</option>
+            </select>
+          </label>
           <button type="submit" disabled={auth.loading}>{auth.loading ? 'Registering…' : 'Register'}</button>
         </form>
         <p className="secondary">Already have an account? <Link to="/login">Login</Link></p>
