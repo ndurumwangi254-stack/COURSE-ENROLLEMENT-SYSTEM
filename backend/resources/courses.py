@@ -32,8 +32,8 @@ class CourseListResource(Resource):
     def post(self):
         user_id = get_jwt_identity()
         user = User.query.get_or_404(user_id)
-        if user.role != "teacher" and user.role != "admin":
-            return {"message": "Only teachers/admins can create courses"}, 403
+        if user.role != "tutor" and user.role != "admin":
+            return {"message": "Only tutors/admins can create courses"}, 403
 
         data = request.get_json()
         course = Course(title=data["title"], description=data["description"], teacher_id=user.id)

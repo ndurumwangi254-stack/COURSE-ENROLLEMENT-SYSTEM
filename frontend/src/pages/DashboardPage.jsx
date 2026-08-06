@@ -5,7 +5,7 @@ export default function DashboardPage({ auth }) {
   const token = auth.token
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
   const [form, setForm] = useState({ title: '', description: '' })
-  const [teacherForm, setTeacherForm] = useState({ username: '', email: '', password: '', full_name: '', bio: '' })
+  const [tutorForm, setTutorForm] = useState({ username: '', email: '', password: '', full_name: '', bio: '' })
   const [adminUsers, setAdminUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState(null)
@@ -19,7 +19,7 @@ export default function DashboardPage({ auth }) {
   const reloadUsers = async () => {
     if (!token || auth.user?.role !== 'admin') return
     setLoadingUsers(true)
-    const res = await fetch('/api/admin/users?role=teacher', { headers })
+    const res = await fetch('/api/admin/users?role=tutor', { headers })
     const data = await res.json()
     if (res.ok) {
       setAdminUsers(data.users)
@@ -108,26 +108,26 @@ export default function DashboardPage({ auth }) {
     reloadCourses()
   }
 
-  const handleAddTeacher = async (e) => {
+  const handleAddTutor = async (e) => {
     e.preventDefault()
     setMessage('')
     const res = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
-      body: JSON.stringify({ ...teacherForm, role: 'teacher' })
+      body: JSON.stringify({ ...tutorForm, role: 'tutor' })
     })
     const data = await res.json()
     if (!res.ok) {
-      setMessage(data.message || 'Unable to add teacher')
+      setMessage(data.message || 'Unable to add tutor')
       return
     }
-    setTeacherForm({ username: '', email: '', password: '', full_name: '', bio: '' })
-    setMessage('Teacher added successfully')
+    setTutorForm({ username: '', email: '', password: '', full_name: '', bio: '' })
+    setMessage('Tutor added successfully')
     reloadUsers()
   }
 
-  const handleDeleteTeacher = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this teacher?')) {
+  const handleDeleteTutor = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this tutor?')) {
       return
     }
     const res = await fetch(`/api/admin/users/${userId}`, {
@@ -136,10 +136,10 @@ export default function DashboardPage({ auth }) {
     })
     const data = await res.json()
     if (!res.ok) {
-      setMessage(data.message || 'Unable to delete teacher')
+      setMessage(data.message || 'Unable to delete tutor')
       return
     }
-    setMessage('Teacher deleted successfully')
+    setMessage('Tutor deleted successfully')
     reloadUsers()
   }
 
@@ -162,7 +162,7 @@ export default function DashboardPage({ auth }) {
       {message && <p className="success">{message}</p>}
       {(courseError || enrollError) && <p className="error">{courseError || enrollError}</p>}
 
-      {(auth.user?.role === 'teacher' || auth.user?.role === 'admin') && (
+      {(auth.user?.role === 'tutor' || auth.user?.role === 'admin') && (
         <section className="card section-card">
           <h2>Create a New Course</h2>
           <form onSubmit={handleCreateCourse} className="form-grid">
@@ -175,22 +175,22 @@ export default function DashboardPage({ auth }) {
 
       {auth.user?.role === 'admin' && (
         <section className="card section-card">
-          <h2>Manage Teachers</h2>
-          <form onSubmit={handleAddTeacher} className="form-grid">
-            <input placeholder="Username" value={teacherForm.username} onChange={(e) => setTeacherForm({ ...teacherForm, username: e.target.value })} />
-            <input placeholder="Email" value={teacherForm.email} onChange={(e) => setTeacherForm({ ...teacherForm, email: e.target.value })} />
-            <input type="password" placeholder="Password" value={teacherForm.password} onChange={(e) => setTeacherForm({ ...teacherForm, password: e.target.value })} />
-            <input placeholder="Full Name" value={teacherForm.full_name} onChange={(e) => setTeacherForm({ ...teacherForm, full_name: e.target.value })} />
-            <textarea placeholder="Bio" value={teacherForm.bio} onChange={(e) => setTeacherForm({ ...teacherForm, bio: e.target.value })} />
-            <button type="submit">Add Teacher</button>
+          <h2>Manage Tutors</h2>
+          <form onSubmit={handleAddTutor} className="form-grid">
+            <input placeholder="Username" value={tutorForm.username} onChange={(e) => setTutorForm({ ...tutorForm, username: e.target.value })} />
+            <input placeholder="Email" value={tutorForm.email} onChange={(e) => setTutorForm({ ...tutorForm, email: e.target.value })} />
+            <input type="password" placeholder="Password" value={tutorForm.password} onChange={(e) => setTutorForm({ ...tutorForm, password: e.target.value })} />
+            <input placeholder="Full Name" value={tutorForm.full_name} onChange={(e) => setTutorForm({ ...tutorForm, full_name: e.target.value })} />
+            <textarea placeholder="Bio" value={tutorForm.bio} onChange={(e) => setTutorForm({ ...tutorForm, bio: e.target.value })} />
+            <button type="submit">Add Tutor</button>
           </form>
 
           <div className="section-header">
-            <h3>Existing Teachers</h3>
-            {loadingUsers && <span className="small-note">Loading teachers…</span>}
+            <h3>Existing Tutors</h3>
+            {loadingUsers && <span className="small-note">Loading tutors…</span>}
           </div>
           {adminUsers.length === 0 ? (
-            <p>No teachers found.</p>
+            <p>No tutors found.</p>
           ) : (
             <div className="grid-list">
               {adminUsers.map((user) => (
@@ -200,7 +200,7 @@ export default function DashboardPage({ auth }) {
                       <h3>{user.username}</h3>
                       <p>{user.email}</p>
                     </div>
-                    <button onClick={() => handleDeleteTeacher(user.id)}>Delete Teacher</button>
+                    <button onClick={() => handleDeleteTutor(user.id)}>Delete Tutor</button>
                   </div>
                 </article>
               ))}
@@ -222,7 +222,7 @@ export default function DashboardPage({ auth }) {
               <article key={course.id} className="course-card">
                 <div className="course-header">
                   <h3>{course.title}</h3>
-                  <span className="pill">Teacher: {course.teacher?.username || 'N/A'}</span>
+                  <span className="pill">Tutor: {course.teacher?.username || 'N/A'}</span>
                 </div>
                 <p>{course.description}</p>
                 <div className="course-actions">
@@ -231,7 +231,7 @@ export default function DashboardPage({ auth }) {
                   <button disabled={enrolledCourseIds.includes(course.id)} onClick={() => handleEnroll(course.id)}>
                     {enrolledCourseIds.includes(course.id) ? 'Enrolled' : 'Enroll'}
                   </button>
-                  {(auth.user?.role === 'teacher' || auth.user?.role === 'admin') && (
+                  {(auth.user?.role === 'tutor' || auth.user?.role === 'admin') && (
                     <button onClick={() => handleDeleteCourse(course.id)}>Delete Course</button>
                   )}
                 </div>

@@ -43,13 +43,13 @@ class AdminUserListResource(Resource):
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        role = data.get('role', 'teacher')
+        role = data.get('role', 'tutor')
         full_name = data.get('full_name', username)
         bio = data.get('bio', '')
 
         if not all([username, email, password]):
             return {'message': 'username, email, and password are required'}, 400
-        if role not in ('teacher', 'admin', 'student'):
+        if role not in ('tutor', 'admin', 'student'):
             return {'message': 'Invalid role'}, 400
 
         existing = User.query.filter((User.username == username) | (User.email == email)).first()
