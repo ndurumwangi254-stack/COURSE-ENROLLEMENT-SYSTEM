@@ -15,6 +15,13 @@ export default function LoginPage({ auth }) {
 
   return (
     <div className="page auth-page">
+      <nav className="auth-navbar">
+        <div className="brand">Course Enrollment System</div>
+        <div className="nav-links">
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
+        </div>
+      </nav>
       <div className="card auth-card">
         <h1>Course Enrollment</h1>
         {auth.error && <p className="error">{auth.error}</p>}
