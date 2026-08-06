@@ -189,7 +189,17 @@ button:disabled {
 
 .form-grid {
   display: grid;
-  gap: 18px;
+  gap: 24px;
+}
+
+.page.auth-page .card form {
+  display: grid;
+  gap: 24px;
+}
+
+.page.auth-page .card input,
+.page.auth-page .card button {
+  min-height: 56px;
 }
 
 .section-card {
