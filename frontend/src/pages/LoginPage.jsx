@@ -18,6 +18,7 @@ export default function LoginPage({ auth }) {
       <nav className="auth-navbar">
         <div className="brand">Course Enrollment System</div>
         <div className="nav-links">
+          <Link to="/login">Home</Link>
           <Link to="/login">Login</Link>
           <Link to="/register">Register</Link>
         </div>
