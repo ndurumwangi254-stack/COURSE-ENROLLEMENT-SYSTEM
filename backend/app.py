@@ -19,7 +19,7 @@ def create_app():
     CORS(app, origins=[
         "http://localhost:5173",  # Vite dev server
         "http://localhost:5001",  # Backend local server (this app)
-        "https://your-frontend.vercel.app"
+        "https://course-enrollement-system-fizyuzhoq.vercel.app"
     ])
 
     db.init_app(app)
