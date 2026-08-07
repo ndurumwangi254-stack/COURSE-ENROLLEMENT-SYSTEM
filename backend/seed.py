@@ -1,7 +1,6 @@
 from app import app
 from models import db, User, Profile, Course, Enrollment
-from datetime import datetime
-
+from datetime import datetime, timezone
 
 def seed():
     with app.app_context():
@@ -31,7 +30,7 @@ def seed():
         db.session.add_all([profile_admin, profile_teacher, profile_student1, profile_student2, course1, course2])
         db.session.flush()
 
-        utcnow = datetime.now(datetime.UTC)
+        utcnow = datetime.now(timezone.utc)
         db.session.add_all([
             Enrollment(student_id=student1.id, course_id=course1.id, grade=88.5, enrolled_at=utcnow),
             Enrollment(student_id=student2.id, course_id=course1.id, grade=92.0, enrolled_at=utcnow),
