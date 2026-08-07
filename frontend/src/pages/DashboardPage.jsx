@@ -4,6 +4,7 @@ import { useFetch } from '../hooks/useFetch'
 export default function DashboardPage({ auth }) {
   const token = auth.token
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
+  const API_BASE = import.meta.env.VITE_API_URL || ''
   const [form, setForm] = useState({ title: '', description: '', grade_requirements: '', cost: '', duration: '' })
   const [tutorForm, setTutorForm] = useState({ username: '', email: '', password: '', full_name: '', bio: '' })
   const [adminUsers, setAdminUsers] = useState([])
@@ -14,13 +15,13 @@ export default function DashboardPage({ auth }) {
   const [message, setMessage] = useState('')
   const [switchTargets, setSwitchTargets] = useState({})
 
-  const { data: courseData, loading: loadingCourses, error: courseError, refetch: reloadCourses } = useFetch('/api/courses', { headers }, [token])
-  const { data: enrollmentData, loading: loadingEnrollments, error: enrollError, refetch: reloadEnrollments } = useFetch('/api/enrollments', { headers }, [token])
+  const { data: courseData, loading: loadingCourses, error: courseError, refetch: reloadCourses } = useFetch(`${API_BASE}/courses`, { headers }, [token])
+  const { data: enrollmentData, loading: loadingEnrollments, error: enrollError, refetch: reloadEnrollments } = useFetch(`${API_BASE}/enrollments`, { headers }, [token])
 
   const reloadUsers = async () => {
     if (!token || auth.user?.role !== 'admin') return
     setLoadingUsers(true)
-    const res = await fetch('/api/admin/users?role=tutor', { headers })
+    const res = await fetch(`${API_BASE}/admin/users?role=tutor`, { headers })
     const data = await res.json()
     if (res.ok) {
       setAdminUsers(data.users)
@@ -45,10 +46,9 @@ export default function DashboardPage({ auth }) {
   }, [token])
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL
-    if (!API_URL) return
+    if (!API_BASE) return
 
-    fetch(`${API_URL}/api/courses`)
+    fetch(`${API_BASE}/courses`)
       .then((res) => res.json())
       .then((data) => console.log(data))
       .catch((err) => console.error('Failed to fetch courses from VITE_API_URL', err))
@@ -57,7 +57,7 @@ export default function DashboardPage({ auth }) {
   const handleCreateCourse = async (e) => {
     e.preventDefault()
     setMessage('')
-    const res = await fetch('/api/courses', {
+    const res = await fetch(`${API_BASE}/courses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ ...form, cost: form.cost ? Number(form.cost) : 0 })
@@ -73,7 +73,7 @@ export default function DashboardPage({ auth }) {
   }
 
   const handleEnroll = async (courseId) => {
-    const res = await fetch('/api/enrollments', {
+    const res = await fetch(`${API_BASE}/enrollments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ course_id: courseId })
@@ -90,7 +90,7 @@ export default function DashboardPage({ auth }) {
 
   const handleSwitchCourse = async (enrollmentId, courseId) => {
     if (!courseId) return
-    const res = await fetch(`/api/enrollments/${enrollmentId}`, {
+    const res = await fetch(`${API_BASE}/enrollments/${enrollmentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ course_id: courseId })
@@ -108,7 +108,7 @@ export default function DashboardPage({ auth }) {
 
   const handleViewStudents = async (course) => {
     setSelectedCourse(course)
-    const res = await fetch(`/api/courses/${course.id}/students`, { headers })
+    const res = await fetch(`${API_BASE}/courses/${course.id}/students`, { headers })
     const data = await res.json()
     if (!res.ok) {
       setMessage(data.message || 'Unable to load students')
@@ -118,7 +118,7 @@ export default function DashboardPage({ auth }) {
   }
 
   const handleViewStats = async (course) => {
-    const res = await fetch(`/api/courses/${course.id}/stats`, { headers })
+    const res = await fetch(`${API_BASE}/courses/${course.id}/stats`, { headers })
     const data = await res.json()
     if (!res.ok) {
       setMessage(data.message || 'Unable to load stats')
@@ -131,7 +131,7 @@ export default function DashboardPage({ auth }) {
     if (!window.confirm('Are you sure you want to delete this course?')) {
       return
     }
-    const res = await fetch(`/api/courses/${courseId}`, {
+    const res = await fetch(`${API_BASE}/courses/${courseId}`, {
       method: 'DELETE',
       headers
     })
@@ -147,7 +147,7 @@ export default function DashboardPage({ auth }) {
   const handleAddTutor = async (e) => {
     e.preventDefault()
     setMessage('')
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch(`${API_BASE}/admin/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ ...tutorForm, role: 'tutor' })
@@ -166,7 +166,7 @@ export default function DashboardPage({ auth }) {
     if (!window.confirm('Are you sure you want to delete this tutor?')) {
       return
     }
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
       method: 'DELETE',
       headers
     })

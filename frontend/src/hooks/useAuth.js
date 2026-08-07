@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 export function useAuth() {
   const [token, setToken] = useState(localStorage.getItem('token'))
