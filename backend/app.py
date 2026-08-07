@@ -1,4 +1,5 @@
-from flask import Flask
+import os
+from flask import Flask, request
 from flask_restful import Api
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -37,6 +38,16 @@ def create_app():
     api.add_resource(EnrollmentDetailResource, "/enrollments/<int:enrollment_id>")
     api.add_resource(AdminUserListResource, "/admin/users")
     api.add_resource(AdminUserResource, "/admin/users/<int:user_id>")
+
+    # TEMPORARY: one-time seed endpoint. Remove after running once.
+    @app.route('/run-seed-once-xyz123')
+    def run_seed_once():
+        secret = request.args.get('key')
+        if secret != os.getenv('SEED_SECRET'):
+            return 'Forbidden', 403
+        from seed import seed
+        seed()
+        return 'Seed complete', 200
 
     return app
 
