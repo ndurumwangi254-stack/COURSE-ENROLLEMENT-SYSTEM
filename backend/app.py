@@ -14,7 +14,13 @@ from resources.admin import AdminUserListResource, AdminUserResource
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    CORS(app)
+    # Restrict CORS to the frontend origins used in development and production.
+    # Replace 'https://your-frontend.vercel.app' with your real Vercel URL when deployed.
+    CORS(app, origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:5001",  # Backend local server (this app)
+        "https://your-frontend.vercel.app"
+    ])
 
     db.init_app(app)
     Migrate(app, db)

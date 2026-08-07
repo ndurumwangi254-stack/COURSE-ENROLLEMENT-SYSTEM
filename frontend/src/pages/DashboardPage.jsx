@@ -44,6 +44,16 @@ export default function DashboardPage({ auth }) {
     reloadUsers()
   }, [token])
 
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL
+    if (!API_URL) return
+
+    fetch(`${API_URL}/api/courses`)
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((err) => console.error('Failed to fetch courses from VITE_API_URL', err))
+  }, [])
+
   const handleCreateCourse = async (e) => {
     e.preventDefault()
     setMessage('')
